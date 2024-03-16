@@ -28,8 +28,8 @@ public class InsertUsers {
         for (int i = 0; i < INSERT_NUM; i++) {
            User user=new User();
 
-           user.setUsername("假鱼皮");
-           user.setUserAccount("fakeyupi");
+           user.setUsername("假虎皮");
+           user.setUserAccount("fakehupi");
            user.setAvatarUrl("");
            user.setGender(0);
            user.setUserPassword("12345678");

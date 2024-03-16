@@ -9,13 +9,10 @@ import com.huhu.hupao.exception.BusinessException;
 import com.huhu.hupao.model.domain.User;
 import com.huhu.hupao.model.domain.request.UserLoginRequest;
 import com.huhu.hupao.model.domain.request.UserRegisterRequest;
-import com.huhu.hupao.model.vo.UserVO;
 import com.huhu.hupao.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +23,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.huhu.hupao.contant.UserConstant.ADMIN_ROLE;
 import static com.huhu.hupao.contant.UserConstant.USER_LOGIN_STATE;
 
 /**
@@ -224,6 +220,8 @@ public class UserController {
         User user=userService.getLogininUser(request);
         return ResultUtils.success(userService.matchUsers(num,user));
     }
+
+
 
 
 }

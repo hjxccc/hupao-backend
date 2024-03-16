@@ -48,7 +48,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     /**
      * 盐值，混淆密码
      */
-    private static final String SALT = "yupi";
+    private static final String SALT = "hupi";
 
     /**
      * 用户注册
@@ -228,7 +228,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 //            if(StringUtils.isBlank(tagsStr)){
 //                return false;
 //            }
-           Set<String>  tempTagNameSet=gson.fromJson(tagsStr,new TypeToken<Set<String>>(){}.getType());
+            Set<String>  tempTagNameSet=gson.fromJson(tagsStr,new TypeToken<Set<String>>(){}.getType());
             tempTagNameSet =Optional.ofNullable(tempTagNameSet).orElse(new HashSet<>());
 
             for (String tagName : tagNameList) {
@@ -279,18 +279,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     //
     @Override
     public List<User> matchUsers(long num, User loginUser) {
+
+        //从数据库中选择所有具有非空标签的用户
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
         queryWrapper.select("id","tags");
         queryWrapper.isNotNull("tags");
         List<User> userList = this.list(queryWrapper);
 
-
-
+        //使用Gson库将其解析为一个字符串列表“tagList”
         String tags = loginUser.getTags();
         Gson gson=new Gson();
-
         List<String> tagList = gson.fromJson(tags, new TypeToken<List<String>>() {
         }.getType());
+
 
         //用户列表的下标  相似度
         List<Pair<User,Long>> list=new ArrayList<>();
@@ -303,26 +304,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             if(StringUtils.isBlank(userTags) || user.getId()==loginUser.getId()){
                 continue;
             }
-            List<String> userTagList=  gson.fromJson(tags,new TypeToken<List<String>>(){}.getType());
+            //["java", "programming", "computer science", "algorithm"]转化为字符串List
+            List<String> userTagList=gson.fromJson(tags,new TypeToken<List<String>>(){}.getType());
             //计算分数
             long distance = AlgorithmUtils.minDistance(tagList, userTagList);
             list.add(new Pair<>(user,distance));
-
         }
 
         // 按编辑举例由小到大排序
+        //limit(num)方法获取排序后的列表中的前num个元素
         List<Pair<User,Long>>  topUserPairList=list.stream()
                 .sorted((a,b)->(int)(a.getValue()-b.getValue()))
                 .limit(num)
                 .collect(Collectors.toList());
         //原本顺序的 userId列表
+        //在topUserPairList中。
+        //从topuserPairList中获取用户ID，并存储在userIdList中。
         List<Long> userIdList=topUserPairList.stream().map(pair->pair.getKey().getId()).collect(Collectors.toList());
         QueryWrapper<User> userQueryWrapper=new QueryWrapper<>();
         userQueryWrapper.in("id",userIdList);
+        //查询在topUserPairList的id列表去数据库，得到id和user对象列表
         Map<Long,List<User>> userIdUserListMap= this.list(userQueryWrapper)
                 .stream()
                 .map(user -> getSafetyUser(user))
                 .collect(Collectors.groupingBy(User::getId));
+
+        //封装前几名的对象返回。
         List<User> finalUserList =new ArrayList<>();
         for (Long userId : userIdList) {
             finalUserList.add(userIdUserListMap.get(userId).get(0 ));

@@ -276,7 +276,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements IT
         }
 
 
-
         if(team.getExpireTime()!=null &&team.getExpireTime().before(new Date())){
             throw new BusinessException(ErrorCode.PARAMS_ERROR,"队伍已过期");
         }
@@ -294,8 +293,6 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements IT
 
 
 
-
-
         // 该用户已加入的队伍数量
         long userId = loginUser.getId();
         // 只有一个线程能获取到锁
@@ -303,6 +300,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements IT
         try {
             // 抢到锁并执行
             while (true) {
+                //-1为无限等待。
                 if (lock.tryLock(0, -1, TimeUnit.MILLISECONDS)) {
                     System.out.println("getLock: " + Thread.currentThread().getId());
                     QueryWrapper<UserTeam> userTeamQueryWrapper = new QueryWrapper<>();

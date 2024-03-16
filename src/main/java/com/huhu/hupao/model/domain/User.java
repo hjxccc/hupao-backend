@@ -87,7 +87,7 @@ public class User implements Serializable {
      */
     private String planetCode;
 
-    // https://github.com/liyupi
+
 
     private String tags;
 
